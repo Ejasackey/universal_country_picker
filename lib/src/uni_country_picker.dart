@@ -19,7 +19,6 @@ class UniCountryPicker extends StatefulWidget {
   double? overlayHeight;
   double? overlayWidth;
   Country? initialCountry;
-
   bool showFlag;
   OverlayAlignment overlayAlignment;
   late Duration openAnimationDuration;
@@ -63,8 +62,9 @@ class UniCountryPicker extends StatefulWidget {
   ///Exclude all countries except these from the list.
   List<Country> onlyTheseCountries;
 
-  /// This context must be from a scaffold widget otherwise the overlay could overflow into safe area.
-  BuildContext context;
+  /// This context must be from a scaffold widget to register keyboard inset.
+  /// Only provide if you need the overlay to reposition when keyboard is opened
+  BuildContext? scaffoldContext;
 
   /// use `showOverlay` to display the country list overlay when the child widget is tapped.
   Widget Function(
@@ -117,7 +117,7 @@ class UniCountryPicker extends StatefulWidget {
     this.countryCodeStyle,
     this.excludeCountries = const [],
     this.onlyTheseCountries = const [],
-    required this.context,
+    this.scaffoldContext,
     this.overlayOffset = 8,
     this.clearIconButtonStyle = const ButtonStyle(),
     this.clearIconSize = 22,
@@ -137,6 +137,29 @@ class UniCountryPicker extends StatefulWidget {
           ],
         );
   }
+
+  // // 1. The static hidden key that will anchor to the root of the app
+  // static final GlobalKey _rootKey = GlobalKey();
+
+  // /// 2. The configuration method the user places in MaterialApp's builder
+  // static Widget init(BuildContext context, Widget? child) {
+  //   return Container(key: _rootKey, child: child ?? const SizedBox.shrink());
+  // }
+
+  // /// 3. The public/internal getter to grab the root context anywhere
+  // BuildContext get globalContext {
+  //   if (scaffoldContext != null) {
+  //     return scaffoldContext!;
+  //   }
+  //   final ctx = _rootKey.currentContext;
+  //   if (ctx == null) {
+  //     throw FlutterError(
+  //       'UniCountryPicker Error: Root context is null.\n'
+  //       'Make sure to add "UniCountryPicker.init" to your MaterialApp`s builder field.\n',
+  //     );
+  //   }
+  //   return ctx;
+  // }
 
   @override
   State<UniCountryPicker> createState() => _UniCountryPickerState();
@@ -204,10 +227,11 @@ class _UniCountryPickerState extends State<UniCountryPicker>
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.sizeOf(context);
-    safeAreaTop = MediaQuery.viewPaddingOf(widget.context).top;
-    safeAreaBottom = MediaQuery.viewPaddingOf(widget.context).bottom;
+    safeAreaTop = MediaQuery.viewPaddingOf(context).top;
+    safeAreaBottom = MediaQuery.viewPaddingOf(context).bottom;
     return OverlayPortal(
       controller: overlayController,
+      overlayLocation: OverlayChildLocation.rootOverlay,
       overlayChildBuilder: (context) {
         RenderBox childBox =
             _countrySelectorKey.currentContext?.findRenderObject() as RenderBox;
@@ -298,7 +322,9 @@ class _UniCountryPickerState extends State<UniCountryPicker>
         RenderBox searchBarBox =
             _countrySelectorKey.currentContext?.findRenderObject() as RenderBox;
         // Offset searchBarPosition = childBox.localToGlobal(Offset.zero);
-        double bottomInset = MediaQuery.viewInsetsOf(widget.context).bottom;
+        double bottomInset = MediaQuery.viewInsetsOf(
+          widget.scaffoldContext ?? context,
+        ).bottom;
         // search bar edge is the y coordinate + the padding around the text field
         // + the height of the search bar.
         // I am multiplying the overlayPadding by 2, because there's no bottomPadding

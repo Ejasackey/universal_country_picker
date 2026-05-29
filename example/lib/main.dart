@@ -1,3 +1,4 @@
+import 'package:example/country_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_country_picker/universal_country_picker.dart';
 
@@ -33,36 +34,26 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF1D9A98),
-        title: Text(widget.title, style: TextStyle(color: Colors.white)),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Color(0xFF1D9A98),
+      //   title: Text(widget.title, style: TextStyle(color: Colors.white)),
+      // ),
       body: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisAlignment: .spaceBetween,
           children: [
-            Align(
-              alignment: .centerLeft,
-              child: countrySelector(
-                context,
-                alignment: OverlayAlignment.bottomLeft,
-                labelType: CountryLabelType.nameAndCurrency,
-              ),
-            ),
+            Align(alignment: .topLeft, child: CountrySelector()),
+            SizedBox(height: 20),
             countrySelector(
               context,
-              alignment: OverlayAlignment.bottomRight,
+              alignment: OverlayAlignment.bottomLeft,
               labelType: CountryLabelType.nameAndPhoneCode,
             ),
             Align(
-              alignment: .centerRight,
-              child: countrySelector(
-                context,
-                alignment: OverlayAlignment.topLeft,
-                labelType: CountryLabelType.nameOnly,
-              ),
+              alignment: .bottomRight,
+              child: countrySelector(context, alignment: .bottomLeft),
             ),
           ],
         ),
@@ -77,13 +68,13 @@ class _MyHomePageState extends State<MyHomePage> {
     CountryLabelType labelType = CountryLabelType.nameAndCurrency,
   }) {
     return UniCountryPicker(
-      context: context,
-      overlayOffset: 8,
+      // scaffoldContext: context,
       labelType: labelType,
       emptyCountryMessage: "No Country Found",
       hintText: "Search country",
-      insetPadding: 15,
+      // insetPadding: 15,
       overlayAlignment: alignment,
+      overlayHeight: 300,
       initialCountry: Country.ghana,
       showWorldWideOption: true,
       countryItemStyle: TextButton.styleFrom(
